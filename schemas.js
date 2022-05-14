@@ -15,12 +15,8 @@ const adminSchema = new mongoose.Schema({
 		required: true
 	},
 	createdOn: {
-		type: String,
-		default: Date()
-	},
-	sessions: {
 		type: Array,
-		default: []
+		default: [new Date().getDate(), new Date().getMonth()+1, new Date().getFullYear()]
 	}
 });
 
@@ -36,17 +32,21 @@ const messageSchema = new mongoose.Schema({
 	msg:{
 		type: String,
 		required: true
+	},
+	addedOn: {
+		type: Array,
+		default: [new Date().getDate(), new Date().getMonth()+1, new Date().getFullYear()]
 	}
 });
 
 const noticeSchema = new mongoose.Schema({
 	date: {
 		type: Array,
-		required: true
+		default: [new Date().getDate(), new Date().getMonth()+1, new Date().getFullYear()]
 	},
 	time: {
 		type: Array,
-		required: true
+		default: [new Date().getHours(), new Date().getMinutes()]
 	},
 	notice: {
 		type: String,
