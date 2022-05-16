@@ -31,11 +31,6 @@ const Message = new mongoose.model("Message", schemas.messageSchema);
 const Notice = new mongoose.model("Notice", schemas.noticeSchema);
 const Student = new mongoose.model("Student", schemas.studentSchema);
 
-const tst = new mongoose.model("test", new mongoose.Schema({
-	a:Number
-}));
-
-
 
 // Parameters validation function
 
@@ -55,9 +50,8 @@ function validateParams(a){
 
 // 0 - Normal Endpoint
 
-app.get("/", async(req,res) => {
-	var data = await tst.find();
-	res.end("Api Working - All endpoints starts with /api\n"+data);
+app.get("/", (req,res) => {
+	res.end("Api Working - All endpoints starts with /api");
 });
 
 // 1 - Admin Creation Endpoint
@@ -315,8 +309,8 @@ app.get("/api/getNotice", async(req,res) => {
 
 // 8 - Delete Notice Endpoint
 
-app.post("/api/deleteNotice", async(req,res) => {
-	var id = req.body.id;
+app.get("/api/deleteNotice", async(req,res) => {
+	var id = req.query.id;
 	var p = [id];
 	if(req.query.token!=AUTHTOKEN){
 		res.json({
@@ -454,6 +448,37 @@ app.post("/api/addStudnet", async(req,res) => {
 			await newStudent.save();
 			res.json({
 				message:"Student Added"
+			});
+		}catch(err){
+			res.json({
+				message:"Error Occured",
+				error:err
+			});
+		}
+	}
+});
+
+// 12 - Edit Student Data
+
+
+// 13 - Delete Student
+
+app.get("/api/deleteStudent", async(req,res) => {
+	var admNo = req.query.admNo;
+	var p = [admNo];
+	if(req.query.token!=AUTHTOKEN){
+		res.json({
+			message:"Invalid Authtoken"
+		});
+	}else if(!validateParams(p)){
+		res.json({
+			message:"Invalid Parameters"
+		});
+	}else{
+		try{
+			var result = await Student.deleteOne({admNo});
+			res.json({
+				result
 			});
 		}catch(err){
 			res.json({
