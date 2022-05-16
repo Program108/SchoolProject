@@ -29,6 +29,13 @@ mongoose.connection.on("error", err => console.log("Runtime Connection Error - "
 const Admin = new mongoose.model("Admin", schemas.adminSchema);
 const Message = new mongoose.model("Message", schemas.messageSchema);
 const Notice = new mongoose.model("Notice", schemas.noticeSchema);
+const Student = new mongoose.model("Student", schemas.studentSchema);
+
+const tst = new mongoose.model("test", new mongoose.Schema({
+	a:Number
+}));
+
+
 
 // Parameters validation function
 
@@ -43,12 +50,14 @@ function validateParams(a){
 }
 
 
+
 // Endpoints
 
 // 0 - Normal Endpoint
 
-app.get("/", (req,res) => {
-	res.end("Api Working - All endpoints starts with /api");
+app.get("/", async(req,res) => {
+	var data = await tst.find();
+	res.end("Api Working - All endpoints starts with /api\n"+data);
 });
 
 // 1 - Admin Creation Endpoint
@@ -197,15 +206,15 @@ app.post("/api/addMessage", async(req,res) => {
 
 // 5 - Get Messages Endpoint
 
-app.post("/api/getMessage", async(req,res) => {
-	var date = req.body.date;
+app.get("/api/getMessage", async(req,res) => {
+	var date = req.query.date;
 	if(req.query.token!=AUTHTOKEN){
 		res.json({
 			message:"Invalid Authtoken"
 		});
 	}else if(date!=null){
 		try{
-			var data = await Message.find({addedOn:date.split("/")});
+			var data = await Message.find({addedOn:date});
 			res.json({
 				message:"Success",
 				total:data.length,
@@ -267,15 +276,14 @@ app.post("/api/addNotice", async(req,res) => {
 
 // 7 - Get Notice Endpoint
 
-app.post("/api/getNotice", async(req,res) => {
-	var d = req.body.date;
+app.get("/api/getNotice", async(req,res) => {
+	var date = req.query.date;
 	if(req.query.token!=AUTHTOKEN){
 		res.json({
 			message:"Invalid Authtoken"
 		});
-	}else if(d!=null){
+	}else if(date!=null){
 		try{
-			var date = d.split("/");
 			var data = await Notice.find({date});
 			res.json({
 				message:"Success",
@@ -356,6 +364,96 @@ app.post("/api/editNotice", async(req,res) => {
 			});
 			res.json({
 				result
+			});
+		}catch(err){
+			res.json({
+				message:"Error Occured",
+				error:err
+			});
+		}
+	}
+});
+
+// 10 - Get Students Data
+
+app.get("/api/getStudent", async(req,res) => {
+	var admNo = req.query.admNo;
+	var cls = req.query.cls;
+	var section = rew.query.section;
+	if(req.query.token!=AUTHTOKEN){
+		res.json({
+			message:"Invalid Authtoken"
+		});
+	}else if(admNo!=null||cls!=null){
+		try{
+			if(admNo!=null){
+				var data = await Student.find({admNo});
+			}else if(cls!=null&&section!=null){
+				var data = await Student.find({cls,section});
+			}else{
+				var data = await Student.find({cls});
+			}
+			res.json({
+				message:"Success",
+				data
+			});
+		}catch(err){
+			res.json({
+				message:"Error Occured",
+				error:err
+			});
+		}
+	}else{
+		try{
+			var data = await Student.find();
+			res.json({
+				message:"Success",
+				total:data.length,
+				data
+			});
+		}catch(err){
+			res.json({
+				message:"Error Occured",
+				error:err
+			});
+		}
+	}
+});
+
+// 11 - Add Student Endpoint
+
+app.post("/api/addStudnet", async(req,res) => {
+	var name = req.body.name;
+	var admNo = req.body.admNo;
+	var cls = req.body.cls;
+	var section = req.body.section;
+	var dob = req.body.dob;
+	var doa = req.body.doa;
+	var house = req.body.house;
+	var address = req.body.address;
+	var phoneOne = req.body.phoneOne;
+	var phoneTwo = req.body.phoneTwo;
+	var fatherName = req.body.fatherName;
+	var motherName = req.body.motherName;
+	var p = [name,admNo,cls,section,dob,doa,house,address,phoneOne,phoneTwo,fatherName,motherName];
+	if(req.query.token!=AUTHTOKEN){
+		res.json({
+			message:"Invalid Authtoken"
+		});
+	}else if(!validateParams(p)){
+		res.json({
+			message:"Invalid Parameters"
+		});
+	}else{
+		var newStudent = new Student({
+			admNo,cls,section,details:{
+				name,fatherName,motherName,dob,doa,house,address,phoneOne,phoneTwo
+			}
+		});
+		try{
+			await newStudent.save();
+			res.json({
+				message:"Student Added"
 			});
 		}catch(err){
 			res.json({
