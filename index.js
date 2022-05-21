@@ -271,25 +271,10 @@ app.post("/api/addNotice", async(req,res) => {
 // 7 - Get Notice Endpoint
 
 app.get("/api/getNotice", async(req,res) => {
-	var date = req.query.date;
 	if(req.query.token!=AUTHTOKEN){
 		res.json({
 			message:"Invalid Authtoken"
 		});
-	}else if(date!=null){
-		try{
-			var data = await Notice.find({date});
-			res.json({
-				message:"Success",
-				total:data.length,
-				data
-			});
-		}catch(err){
-			res.json({
-				message:"Error Occured",
-				error:err
-			});
-		}
 	}else{
 		try{
 			var data = await Notice.find();
